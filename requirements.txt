@@ -1,0 +1,12 @@
+# Runtime dependencies.  Transitive packages (oauthlib, jwcrypto, requests,
+# asgiref, sqlparse) are resolved by pip and deliberately not pinned here.
+#
+# Django is held on the 4.2 LTS line, at its latest security patch.
+Django==4.2.30
+django-oauth-toolkit==2.3.0
+
+# WSGI server used by the container image; not needed for `manage.py runserver`.
+gunicorn==23.0.0
+
+# Only required when DJANGO_DB_ENGINE=postgres.  Harmless otherwise.
+psycopg[binary]==3.2.3

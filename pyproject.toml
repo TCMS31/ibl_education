@@ -1,0 +1,39 @@
+[project]
+name = "greeting-api"
+version = "1.0.0"
+description = "OAuth2-protected Django JSON API that records and answers greetings."
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [".venv", "project_venv", "core/migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # comprehensions
+    "DJ",   # flake8-django
+    "RUF",  # ruff-specific
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Settings modules are flat namespaces by design.
+"GreetingApi/settings.py" = ["E402"]
+# Django's Meta.indexes is a list by contract; ClassVar is not applicable.
+"core/models.py" = ["RUF012"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "GreetingApi"]
+
+[tool.coverage.run]
+source = ["core", "GreetingApi"]
+omit = ["*/migrations/*", "*/tests/*", "*/wsgi.py", "*/asgi.py", "manage.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
