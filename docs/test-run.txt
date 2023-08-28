@@ -1,0 +1,32 @@
+$ ruff check .
+All checks passed!
+
+$ ruff format --check .
+24 files already formatted
+
+$ DJANGO_DEBUG=1 python manage.py test
+Creating test database for alias 'default'...
+Found 68 test(s).
+System check identified no issues (0 silenced).
+....................................................................
+----------------------------------------------------------------------
+Ran 68 tests in 4.699s
+
+OK
+Destroying test database for alias 'default'...
+
+$ coverage run manage.py test && coverage report
+Name    Stmts   Miss  Cover   Missing
+-------------------------------------
+TOTAL     254      0   100%
+
+13 files skipped due to complete coverage.
+
+$ python manage.py makemigrations --check --dry-run
+No changes detected
+
+$ DJANGO_SECRET_KEY=<generated> DJANGO_ALLOWED_HOSTS=api.example.com python manage.py check --deploy
+System check identified no issues (0 silenced).
+
+$ docker compose config -q     # parse only; the daemon is not running
+(no output: the compose file parses)
