@@ -1,0 +1,48 @@
+name: greeting-api
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DJANGO_DB_NAME:-greetingapi}
+      POSTGRES_USER: ${DJANGO_DB_USER:-greetingapi}
+      POSTGRES_PASSWORD: ${DJANGO_DB_PASSWORD:?set DJANGO_DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DJANGO_DB_USER:-greetingapi}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      target: runtime
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?set DJANGO_SECRET_KEY in .env}
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      # Terminating TLS is the proxy's job in this compose file.
+      DJANGO_SECURE_SSL_REDIRECT: "0"
+      DJANGO_DB_ENGINE: postgres
+      DJANGO_DB_NAME: ${DJANGO_DB_NAME:-greetingapi}
+      DJANGO_DB_USER: ${DJANGO_DB_USER:-greetingapi}
+      DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:?set DJANGO_DB_PASSWORD in .env}
+      DJANGO_DB_HOST: db
+      DJANGO_DB_PORT: "5432"
+      OAUTH2_ACCESS_TOKEN_TTL_HOURS: ${OAUTH2_ACCESS_TOKEN_TTL_HOURS:-1}
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn GreetingApi.wsgi:application --bind 0.0.0.0:8000
+             --workers 3 --access-logfile - --error-logfile -"
+    ports:
+      - "8730:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
